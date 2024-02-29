@@ -1,0 +1,2 @@
+(()=>{var t={650:t=>{const e=function(t,e,o){return{length:t,hits:e,isSunk:o,hit:function(){return this.hits+=1,console.log("Updated hits:",this.hits),this}}};var o=document.createElement("div");o.style.width="100px",o.style.height="100px",o.style.backgroundColor="red",document.body.appendChild(o),console.log("works"),e(4,2,!1).hit(),t.exports=e}},e={};!function o(r){var n=e[r];if(void 0!==n)return n.exports;var s=e[r]={exports:{}};return t[r](s,s.exports,o),s.exports}(650)})();
+//# sourceMappingURL=main.js.map

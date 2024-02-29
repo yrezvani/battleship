@@ -12,6 +12,7 @@ const createShip = function (length, hits, isSunk) {
     }
 }
 
+console.log('works');
 const ship = createShip(4, 2, false);
 ship.hit();
 module.exports = createShip
