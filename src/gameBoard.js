@@ -4,6 +4,8 @@ const createGameboard = function () {
     let board = Array(10).fill(null).map(() => Array(10).fill(null));
     let ships = [];
     let missedShots = [];
+    let successfulHits = [];
+    let prevMoves = [];
 
     const placeShip = function (x, y, length, orientation) {
         if (!isValidPlacement(x, y, length, orientation)) {
@@ -41,6 +43,13 @@ const createGameboard = function () {
     const receiveAttack = function (x, y) {
         const target = board[y][x];
 
+        const coordStr = `${x.toString()},${y.toString()}`;
+        if (prevMoves.includes(coordStr)) {
+            return 'Illegal Move';
+        }
+        
+        prevMoves.push(coordStr);
+        
         if (target === null) {
             missedShots.push({x, y});
             console.log('Missed shot at:', x, y);
@@ -48,6 +57,7 @@ const createGameboard = function () {
         } else {
             console.log('Hit detected at:', x, y);
             target.hit();
+            successfulHits.push({x, y});
             return true;
         }
     }
@@ -55,6 +65,10 @@ const createGameboard = function () {
     const getMissedShots = function () {
         return missedShots;
     };
+
+    const getSuccessfulHits = function () {
+        return successfulHits;
+    }
 
     const allSunk = function () {
         for (const ship of ships) {
@@ -70,6 +84,7 @@ const createGameboard = function () {
         getCell,
         receiveAttack,
         getMissedShots,
+        getSuccessfulHits,
         allSunk
     }
 }
