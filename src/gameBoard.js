@@ -1,7 +1,9 @@
-const createShip = require('./battleship')
+const createShip = require('./ship');
 
 const createGameboard = function () {
-    let board = Array(10).fill(null).map(() => Array(10).fill(null));
+    let board = Array(10)
+        .fill(null)
+        .map(() => Array(10).fill(null));
     let ships = [];
     let missedShots = [];
     let successfulHits = [];
@@ -13,23 +15,25 @@ const createGameboard = function () {
             return false;
         }
 
-        const newShip = createShip(length, 0);
+        const newShip = createShip(length, orientation);
         ships.push(newShip);
 
         for (let i = 0; i < length; i++) {
+            let segmentInfo = { ship: newShip, segmentIndex: i };
             if (orientation === 'horizontal') {
-                board[y][x + i] = newShip;
+                board[y][x + i] = segmentInfo;
             } else {
-                board[y + i][x] = newShip;
+                board[y + i][x] = segmentInfo;
             }
         }
-    }
+        console.log(`Placed ship at (${x}, ${y}) with length ${length} and orientation ${orientation}.`);
+    };
 
     const isValidPlacement = function (x, y, length, orientation) {
         for (let i = 0; i < length; i++) {
             if (orientation === 'horizontal') {
                 if (x + i >= board[0].length || board[y][x + i]) return false;
-            } else { 
+            } else {
                 if (y + i >= board.length || board[y + i][x]) return false;
             }
         }
@@ -47,20 +51,20 @@ const createGameboard = function () {
         if (prevMoves.includes(coordStr)) {
             return 'Illegal Move';
         }
-        
+
         prevMoves.push(coordStr);
-        
-        if (target === null) {
-            missedShots.push({x, y});
-            console.log('Missed shot at:', x, y);
-            return false;
-        } else {
+
+        if (target !== null) {
             console.log('Hit detected at:', x, y);
-            target.hit();
-            successfulHits.push({x, y});
-            return true;
+            target.ship.hit(target.segmentIndex);
+            successfulHits.push({ x, y });
+            return { result: 'hit', shipHit: target, position: { x, y } };
+        } else {
+            missedShots.push({ x, y });
+            console.log('Missed shot at:', x, y);
+            return { result: 'miss', position: { x, y } };
         }
-    }
+    };
 
     const getMissedShots = function () {
         return missedShots;
@@ -68,16 +72,20 @@ const createGameboard = function () {
 
     const getSuccessfulHits = function () {
         return successfulHits;
-    }
+    };
+
+    const getShips = function () {
+        return ships;
+    };
 
     const allSunk = function () {
         for (const ship of ships) {
             if (!ship.isSunk()) {
-                return false
+                return false;
             }
         }
         return true;
-    }
+    };
 
     return {
         placeShip,
@@ -85,8 +93,9 @@ const createGameboard = function () {
         receiveAttack,
         getMissedShots,
         getSuccessfulHits,
-        allSunk
-    }
-}
+        allSunk,
+        getShips,
+    };
+};
 
-module.exports = createGameboard
+module.exports = createGameboard;
