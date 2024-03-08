@@ -15,12 +15,12 @@ const createGameboard = function () {
             return false;
         }
 
-        const newShip = createShip(length, orientation);
+        const newShip = createShip(length, orientation, x, y);
         ships.push(newShip);
 
         for (let i = 0; i < length; i++) {
             let segmentInfo = { ship: newShip, segmentIndex: i };
-            if (orientation === 'horizontal') {
+            if (orientation === 'Horizontal') {
                 board[y][x + i] = segmentInfo;
             } else {
                 board[y + i][x] = segmentInfo;
@@ -30,13 +30,39 @@ const createGameboard = function () {
     };
 
     const isValidPlacement = function (x, y, length, orientation) {
+        if (!orientation === 'Horizontal' && !orientation === 'Vertical') {
+            console.log('Invalid orientation');
+            return false;
+        }
+        // Loop through each segment of the new ship to check for valid placement
         for (let i = 0; i < length; i++) {
-            if (orientation === 'horizontal') {
-                if (x + i >= board[0].length || board[y][x + i]) return false;
-            } else {
-                if (y + i >= board.length || board[y + i][x]) return false;
+            let newX = orientation === 'Horizontal' ? x + i : x;
+            let newY = orientation === 'Vertical' ? y + i : y;
+
+            // Boundary check: Ensure the ship doesn't go beyond the game board
+            if (newX > 9 || newY > 9) {
+                console.log(`Invalid placement: Ship exceeds boundaries at (${newX}, ${newY})`);
+                return false;
+            }
+
+            // Overlap check: Ensure the ship doesn't overlap with existing ships
+            for (const ship of ships) {
+                let { startX, startY, orientation: shipOrientation } = ship.coordinates;
+
+                // Check each segment of the existing ships
+                for (let j = 0; j < ship.length; j++) {
+                    let shipX = shipOrientation === 'Horizontal' ? startX + j : startX;
+                    let shipY = shipOrientation === 'Vertical' ? startY + j : startY;
+
+                    if (newX === shipX && newY === shipY) {
+                        console.log(`Overlap detected with ship at (${startX}, ${startY})`);
+                        return false;
+                    }
+                }
             }
         }
+
+        // If no boundary issues or overlaps were detected, the placement is valid
         return true;
     };
 
@@ -45,25 +71,29 @@ const createGameboard = function () {
     };
 
     const receiveAttack = function (x, y) {
-        const target = board[y][x];
+        let hitMade = false;
 
-        const coordStr = `${x.toString()},${y.toString()}`;
-        if (prevMoves.includes(coordStr)) {
-            return 'Illegal Move';
-        }
+        ships.forEach((ship) => {
+            let { startX, startY, orientation } = ship.coordinates;
 
-        prevMoves.push(coordStr);
+            for (let i = 0; i < ship.length; i++) {
+                let shipX = orientation === 'Horizontal' ? startX + i : startX;
+                let shipY = orientation === 'Vertical' ? startY + i : startY;
 
-        if (target !== null) {
-            console.log('Hit detected at:', x, y);
-            target.ship.hit(target.segmentIndex);
-            successfulHits.push({ x, y });
-            return { result: 'hit', shipHit: target, position: { x, y } };
-        } else {
-            missedShots.push({ x, y });
+                if (x === shipX && y === shipY) {
+                    ship.hit(i);
+                    console.log('Hit detected at:', x, y);
+                    hitMade = true;
+                    break;
+                }
+            }
+        });
+
+        if (!hitMade) {
             console.log('Missed shot at:', x, y);
-            return { result: 'miss', position: { x, y } };
         }
+
+        return hitMade;
     };
 
     const getMissedShots = function () {

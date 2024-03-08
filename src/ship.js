@@ -1,10 +1,13 @@
-const createShip = function (length, orientation) {
+const createShip = function (length, orientation, startX, startY) {
     const hits = new Array(length).fill(false);
 
+    let coordinates = { startX, startY, orientation };
+
+    console.log('ship created');
     return {
         length: length,
         hits: hits,
-        orientation: orientation,
+        coordinates,
         hit: function (position) {
             if (position >= 0 && position < this.length) {
                 this.hits[position] = true;
