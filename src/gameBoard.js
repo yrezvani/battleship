@@ -83,6 +83,7 @@ const createGameboard = function () {
 
                 if (x === shipX && y === shipY) {
                     ship.hit(i);
+                    successfulHits.push({ x: x, y: y });
                     console.log('Hit detected at:', x, y);
                     hitMade = true;
                     break;
@@ -91,7 +92,9 @@ const createGameboard = function () {
         });
 
         if (!hitMade) {
+            missedShots.push({ x: x, y: y });
             console.log('Missed shot at:', x, y);
+            return false;
         }
 
         return hitMade;

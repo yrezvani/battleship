@@ -139,10 +139,43 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // document.querySelector('.grid.enemy').addEventListener('click', attackAi);
+    const attackAi = function (e) {
+        if (!e.target.classList.contains('cell')) return;
+        const cell = e.target;
 
-    // const attackAi = function (e) {
-    //     if (!e.target.classList.contains('cell')) return;
-    //     const cell = e.target;
-    // };
+        const startX = parseInt(cell.dataset.x);
+        const startY = parseInt(cell.dataset.y);
+
+        console.log(gameControl.aiGameboard.getCell(startX, startY));
+        const attackCell = gameControl.aiGameboard.receiveAttack(startX, startY);
+        if (attackCell) {
+            cell.classList.add('hit');
+        } else cell.classList.add('miss');
+
+        if (gameControl.aiGameboard.allSunk()) {
+            alert('You Win!');
+        } else attackHuman();
+    };
+
+    document.querySelector('.grid.enemy').addEventListener('click', attackAi);
+
+    function attackHuman() {
+        let startX, startY, cell;
+
+        do {
+            startX = Math.floor(Math.random() * 10);
+            startY = Math.floor(Math.random() * 10);
+            cell = document.querySelector(`.grid.friendly .cell[data-x="${startX}"][data-y="${startY}"]`);
+        } while (cell.classList.contains('miss') || cell.classList.contains('hit'));
+
+        const attackPlayerCell = gameControl.playerGameboard.receiveAttack(startX, startY);
+
+        if (attackPlayerCell) {
+            cell.classList.add('hit');
+        } else cell.classList.add('miss');
+
+        if (gameControl.playerGameboard.allSunk()) {
+            alert('You Lost!');
+        }
+    }
 });
