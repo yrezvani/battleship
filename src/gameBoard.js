@@ -27,6 +27,7 @@ const createGameboard = function () {
             }
         }
         console.log(`Placed ship at (${x}, ${y}) with length ${length} and orientation ${orientation}.`);
+        return true;
     };
 
     const isValidPlacement = function (x, y, length, orientation) {

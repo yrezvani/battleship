@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     createGrid('friendly');
     createGrid('enemy');
-    finalizeShipPlacementUI();
+    updateGameUIForNextPhase();
 
     document.querySelector('.orientation-btn').addEventListener('click', function (e) {
         currentOrientation = currentOrientation === 'Horizontal' ? 'Vertical' : 'Horizontal';
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         orientationEl.textContent = currentOrientation;
     });
 
-    document.querySelector('.grid.friendly').addEventListener('click', (e) => {
+    const placeShip = function (e) {
         if (!e.target.classList.contains('cell')) return;
         const cell = e.target;
 
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         } else {
             shipsToPlace.shift();
-            finalizeShipPlacementUI();
+            updateGameUIForNextPhase();
             shipCoordinates.forEach((coords) => {
                 const shipCell = document.querySelector(
                     `.grid.friendly .cell[data-x="${coords.x}"][data-y="${coords.y}"]`
@@ -68,7 +68,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
-    });
+    };
+
+    document.querySelector('.grid.friendly').addEventListener('click', placeShip);
 
     const calculateShipCoordinates = function (startX, startY, length, orientation) {
         const shipCoordinates = [];
@@ -86,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return shipCoordinates;
     };
 
-    function finalizeShipPlacementUI() {
+    function updateGameUIForNextPhase() {
         const shipLengthDisplay = document.getElementById('ship-length');
         const orientationEl = document.getElementById('orientation');
         const orientationBtn = document.querySelector('.orientation-btn');
@@ -102,6 +104,45 @@ document.addEventListener('DOMContentLoaded', () => {
             boardEl.textContent = 'Your Waters';
             boardEl.classList.add('side');
             textContainerEl.append(boardEl);
+            document.querySelector('.grid.friendly').removeEventListener('click', placeShip);
+            placeAiShips();
         }
     }
+
+    const placeAiShips = function () {
+        const aiShipsToPlace = [4, 4, 3, 3, 2];
+        const orientationChoices = ['Horizontal', 'Vertical'];
+
+        console.log(`Before loop: ${aiShipsToPlace}`);
+        aiShipsToPlace.forEach((length) => {
+            console.log('Starting AI ship placement.');
+            console.log(`Inside loop: ${aiShipsToPlace}`);
+            let placed = false;
+            let attempts = 0;
+            const maxAttempts = 100; // Set a reasonable limit to prevent infinite loops
+
+            do {
+                console.log(`length: ${length}`);
+                const startX = Math.floor(Math.random() * 10);
+                const startY = Math.floor(Math.random() * 10);
+                const randomIndex = Math.floor(Math.random() * orientationChoices.length);
+                const orientation = orientationChoices[randomIndex];
+
+                placed = gameControl.aiGameboard.placeShip(startX, startY, length, orientation);
+                attempts++;
+                if (attempts > maxAttempts) {
+                    console.log(`Failed to place AI ship of length ${length} after ${maxAttempts} attempts.`);
+                    // Consider resetting the board or implementing an alternative strategy here
+                    break; // Break out of the loop to avoid freezing the browser
+                }
+            } while (!placed);
+        });
+    };
+
+    // document.querySelector('.grid.enemy').addEventListener('click', attackAi);
+
+    // const attackAi = function (e) {
+    //     if (!e.target.classList.contains('cell')) return;
+    //     const cell = e.target;
+    // };
 });
