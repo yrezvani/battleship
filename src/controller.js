@@ -2,11 +2,11 @@ const createGameboard = require('./gameBoard');
 const player = require('./player');
 
 const controller = function () {
-    const playerGameboard = createGameboard();
-    const aiGameboard = createGameboard();
+    let playerGameboard = createGameboard();
+    let aiGameboard = createGameboard();
 
-    const huPlayer = player();
-    const aiPlayer = player();
+    let huPlayer = player();
+    let aiPlayer = player();
     let playerTurn = true;
 
     const playerAttack = function (x, y) {
@@ -39,6 +39,14 @@ const controller = function () {
         }
     };
 
+    function resetGame() {
+        playerGameboard = createGameboard();
+        aiGameboard = createGameboard();
+        huPlayer = player();
+        aiPlayer = player();
+        playerTurn = true;
+    }
+
     return {
         playerGameboard,
         aiGameboard,
@@ -48,6 +56,7 @@ const controller = function () {
         playerAttack,
         aiAttack,
         checkWin,
+        resetGame,
     };
 };
 

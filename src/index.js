@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Current orientation of the ship to be placed
     let currentOrientation = 'Horizontal';
 
-    const gameControl = controller();
+    let gameControl = controller();
 
     createGrid('friendly');
     createGrid('enemy');
@@ -118,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('.grid.friendly').removeEventListener('click', placeShip);
             placeAiShips();
             feedbackEl.textContent = 'Attack AI ships';
+            document.querySelector('.grid.enemy').addEventListener('click', attackAi);
         }
     }
 
@@ -151,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const attackAi = function (e) {
+    function attackAi(e) {
         const feedbackEl = document.querySelector('.feedback');
 
         if (!e.target.classList.contains('cell')) return;
@@ -168,10 +169,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (gameControl.aiGameboard.allSunk()) {
             feedbackEl.textContent = 'You Win!';
+            document.querySelector('.grid.enemy').removeEventListener('click', attackAi);
         } else attackHuman();
-    };
-
-    document.querySelector('.grid.enemy').addEventListener('click', attackAi);
+    }
 
     function attackHuman() {
         let startX, startY;
@@ -203,9 +203,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (gameControl.playerGameboard.allSunk()) {
                     feedbackEl.textContent = 'You Lost!';
+                    document.querySelector('.grid.enemy').removeEventListener('click', attackAi);
                 }
                 break;
             }
         }
+    }
+
+    document.getElementById('reset').addEventListener('click', resetGame);
+
+    function resetGame() {
+        const feedbackEl = document.querySelector('.feedback');
+        shipsToPlace = [4, 4, 3, 3, 2];
+        currentOrientation = 'Horizontal';
+        const cells = document.querySelectorAll('.cell');
+
+        feedbackEl.textContent = 'Place your ships';
+        updateGameUIForNextPhase();
+        gameControl = controller();
+        gameControl.resetGame();
+
+        cells.forEach((cell) => {
+            if (cell.firstChild) {
+                cell.removeChild(cell.firstChild);
+                cell.className = 'cell';
+            }
+        });
+        document.querySelector('.grid.friendly').addEventListener('click', placeShip);
     }
 });
