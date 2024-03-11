@@ -64,11 +64,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     `.grid.friendly .cell[data-x="${coords.x}"][data-y="${coords.y}"]`
                 );
                 if (shipCell) {
-                    shipCell.classList.add('occupied');
+                    addIconToCell(shipCell, 'ship');
                 }
             });
         }
     };
+
+    function addIconToCell(cell, icon) {
+        const iconEl = document.createElement('i');
+        if (icon === 'ship') {
+            iconEl.className = `fa-solid fa-ship`;
+        } else if (icon === 'hit') {
+            cell.textContent = '💥';
+        } else cell.textContent = '🚫';
+        cell.append(iconEl);
+    }
 
     document.querySelector('.grid.friendly').addEventListener('click', placeShip);
 
@@ -93,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const orientationEl = document.getElementById('orientation');
         const orientationBtn = document.querySelector('.orientation-btn');
         const textContainerEl = document.querySelector('.text-container');
+        const feedbackEl = document.querySelector('.feedback');
         if (shipsToPlace.length > 0) {
             const nextShipLength = shipsToPlace[0];
             shipLengthDisplay.textContent = `Click to place a ship (length: ${nextShipLength})`;
@@ -106,6 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
             textContainerEl.append(boardEl);
             document.querySelector('.grid.friendly').removeEventListener('click', placeShip);
             placeAiShips();
+            feedbackEl.textContent = 'Attack AI ships';
         }
     }
 
@@ -140,6 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const attackAi = function (e) {
+        const feedbackEl = document.querySelector('.feedback');
+
         if (!e.target.classList.contains('cell')) return;
         const cell = e.target;
 
@@ -149,33 +163,49 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(gameControl.aiGameboard.getCell(startX, startY));
         const attackCell = gameControl.aiGameboard.receiveAttack(startX, startY);
         if (attackCell) {
-            cell.classList.add('hit');
-        } else cell.classList.add('miss');
+            addIconToCell(cell, 'hit');
+        } else addIconToCell(cell, 'miss');
 
         if (gameControl.aiGameboard.allSunk()) {
-            alert('You Win!');
+            feedbackEl.textContent = 'You Win!';
         } else attackHuman();
     };
 
     document.querySelector('.grid.enemy').addEventListener('click', attackAi);
 
     function attackHuman() {
-        let startX, startY, cell;
+        let startX, startY;
+        const feedbackEl = document.querySelector('.feedback');
+        const missedShots = gameControl.playerGameboard.getMissedShots();
+        const successfulHits = gameControl.playerGameboard.getSuccessfulHits();
+        const previousShots = missedShots.concat(successfulHits);
+        let isUnique = true;
 
-        do {
+        while (true) {
+            isUnique = true;
             startX = Math.floor(Math.random() * 10);
             startY = Math.floor(Math.random() * 10);
-            cell = document.querySelector(`.grid.friendly .cell[data-x="${startX}"][data-y="${startY}"]`);
-        } while (cell.classList.contains('miss') || cell.classList.contains('hit'));
 
-        const attackPlayerCell = gameControl.playerGameboard.receiveAttack(startX, startY);
+            for (const shot of previousShots) {
+                if (shot.x === startX && shot.y === startY) {
+                    isUnique = false;
+                    break;
+                }
+            }
 
-        if (attackPlayerCell) {
-            cell.classList.add('hit');
-        } else cell.classList.add('miss');
+            if (isUnique) {
+                const cell = document.querySelector(`.grid.friendly .cell[data-x="${startX}"][data-y="${startY}"]`);
+                const attackPlayerCell = gameControl.playerGameboard.receiveAttack(startX, startY);
 
-        if (gameControl.playerGameboard.allSunk()) {
-            alert('You Lost!');
+                if (attackPlayerCell) {
+                    addIconToCell(cell, 'hit');
+                } else addIconToCell(cell, 'miss');
+
+                if (gameControl.playerGameboard.allSunk()) {
+                    feedbackEl.textContent = 'You Lost!';
+                }
+                break;
+            }
         }
     }
 });
