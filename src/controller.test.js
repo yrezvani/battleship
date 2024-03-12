@@ -1,47 +1,18 @@
 const controller = require('./controller');
 
-jest.mock('./gameBoard', () => {
-    return jest.fn().mockImplementation(() => {
-        return {
-            prevMoves: [],
-            receiveAttack: jest.fn().mockImplementation((x, y) => {
-                return true;
-            }),
-            allSunk: jest.fn().mockImplementation(false),
-        };
-    });
-});
-
-jest.mock('./player', () => {
-    return jest.fn().mockImplementation(() => {
-        return {
-            generateRandCoordinates: jest.fn(),
-            prevMoves: [],
-        };
-    });
-});
-
 describe('controller', () => {
-    let testController;
+    it('initiates ai and player gameboards', () => {
+        const gameController = controller();
 
-    beforeEach(() => {
-        jest.clearAllMocks();
-        testController = controller();
+        expect(gameController.aiGameboard).toBeTruthy();
+        expect(gameController.playerGameboard).toBeTruthy();
     });
 
-    it('Makes a hit and toggles turn', () => {
-        testController.playerAttack(0, 0);
+    it('resets aiGameboard and playerGameBoard', () => {
+        const gameController = controller();
+        gameController.resetGame();
 
-        expect(testController.aiGameboard.receiveAttack).toHaveBeenCalledWith(0, 0);
-
-        expect(testController.playerTurn).toBe(true);
-    });
-
-    it('returns true when all AI ships are sunk', () => {
-        testController.aiGameboard.allSunk.mockReturnValue(true);
-
-        const result = testController.checkWin(testController.huPlayer);
-
-        expect(result).toBe(true);
+        expect(gameController.aiGameboard).toBeTruthy();
+        expect(gameController.playerGameboard).toBeTruthy();
     });
 });

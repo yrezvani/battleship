@@ -1,24 +1,5 @@
 const createGameboard = require('./gameBoard');
 
-jest.mock('./ship', () => {
-    return jest.fn((length, orientation) => {
-        let hits = new Array(length).fill(false); // Initialize hits array correctly
-        return {
-            length: length,
-            orientation: orientation || 'horizontal',
-            hits: hits,
-            hit: function (index) {
-                if (index >= 0 && index < this.length) {
-                    this.hits[index] = true;
-                }
-            },
-            isSunk: function () {
-                return this.hits.every((hit) => hit);
-            },
-        };
-    });
-});
-
 describe('Gameboard', () => {
     let gameboard;
 
@@ -26,16 +7,16 @@ describe('Gameboard', () => {
         gameboard = createGameboard();
     });
 
-    it('places a ship horizontally', () => {
-        gameboard.placeShip(0, 0, 3, 'horizontal');
+    it('places a ship Horizontally', () => {
+        gameboard.placeShip(0, 0, 3, 'Horizontal');
         expect(gameboard.getCell(0, 0)).not.toBeNull();
         expect(gameboard.getCell(1, 0)).not.toBeNull();
         expect(gameboard.getCell(2, 0)).not.toBeNull();
         expect(gameboard.getCell(3, 0)).toBeNull();
     });
 
-    it('places a ship vertically', () => {
-        gameboard.placeShip(0, 0, 4, 'vertical');
+    it('places a ship Vertically', () => {
+        gameboard.placeShip(0, 0, 4, 'Vertical');
         expect(gameboard.getCell(0, 0)).not.toBeNull();
         expect(gameboard.getCell(0, 1)).not.toBeNull();
         expect(gameboard.getCell(0, 2)).not.toBeNull();
@@ -44,8 +25,8 @@ describe('Gameboard', () => {
     });
 
     it('prevents overlap of ships', () => {
-        gameboard.placeShip(0, 0, 3, 'horizontal');
-        expect(gameboard.placeShip(0, 0, 3, 'vertical')).toBe(false);
+        gameboard.placeShip(0, 0, 3, 'Horizontal');
+        expect(gameboard.placeShip(0, 0, 3, 'Vertical')).toBe(false);
 
         expect(gameboard.getCell(0, 0)).not.toBeNull();
         expect(gameboard.getCell(1, 0)).not.toBeNull();
@@ -58,14 +39,14 @@ describe('Gameboard', () => {
     });
 
     it('records a hit on a ship', () => {
-        gameboard.placeShip(0, 0, 3, 'horizontal');
+        gameboard.placeShip(0, 0, 3, 'Horizontal');
         gameboard.receiveAttack(0, 0);
         expect(gameboard.getSuccessfulHits()).toContainEqual({ x: 0, y: 0 });
     });
 
     it('checks if all ships are sunk', () => {
-        gameboard.placeShip(0, 0, 3, 'horizontal');
-        gameboard.placeShip(4, 4, 3, 'vertical');
+        gameboard.placeShip(0, 0, 3, 'Horizontal');
+        gameboard.placeShip(4, 4, 3, 'Vertical');
         gameboard.receiveAttack(0, 0);
         gameboard.receiveAttack(1, 0);
         gameboard.receiveAttack(2, 0);
@@ -85,6 +66,6 @@ describe('Gameboard', () => {
 
     it('rejects illegal moves', () => {
         gameboard.receiveAttack(0, 0);
-        expect(gameboard.receiveAttack(0, 0)).toBe('Illegal Move');
+        expect(gameboard.receiveAttack(0, 0)).toBe(false);
     });
 });
