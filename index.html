@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="./index.css" />
+        <script src="https://kit.fontawesome.com/45e27bebf9.js" crossorigin="anonymous"></script>
+        <title>Battleship</title>
+    </head>
+    <body>
+        <h1 class="title">Battleship</h1>
+        <div class="feedback">Place your ships</div>
+        <div class="ships-container">
+            <div class="left-grid-container">
+                <div class="text-container">
+                    <h2 id="ship-length"></h2>
+                    <div class="orientation-container">
+                        <i class="fa-solid fa-arrows-rotate orientation-btn"></i>
+                        <h2 class="orientation" id="orientation">Horizontal</h2>
+                    </div>
+                </div>
+                <div class="grid friendly"></div>
+            </div>
+            <div class="right-grid-container">
+                <div class="text-container">
+                    <h2 class="side">Opponent's Waters</h2>
+                </div>
+                <div class="grid enemy"></div>
+            </div>
+        </div>
+        <div class="button-container">
+            <button id="reset" class="reset">Reset</button>
+        </div>
+        <script src="./main.js"></script>
+    </body>
+</html>
